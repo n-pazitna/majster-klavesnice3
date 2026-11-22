@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Majster klávesnice</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+<style>
+:root{--bg:#fff4d6;--card:#fff;--ink:#2b2250;--mut:#6b6290;--pri:#6c3df0;--ok:#16a34a;--bad:#e11d48;--sun:#ffc21a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1e1840;--card:#2d2560;--ink:#fff7e0;--mut:#c4bcf0;--pri:#9b7bff}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Baloo 2","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;font-size:clamp(18px,2.2vw,24px);min-height:100vh}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+h1,h2{margin:.2em 0;line-height:1.1}
+h1{font-size:clamp(34px,6vw,60px)}
+.card{background:var(--card);border-radius:28px;padding:24px;box-shadow:0 8px 0 rgba(108,61,240,.25);text-align:center}
+.btn{font:inherit;font-weight:800;font-size:1.1em;border:0;border-radius:20px;padding:14px 30px;margin:8px;cursor:pointer;color:#fff;background:var(--pri);box-shadow:0 6px 0 rgba(0,0,0,.25);transition:transform .1s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.btn.g{background:var(--ok)}.btn.o{background:#f97316}.btn.s{background:#64748b;font-size:.8em;padding:8px 16px}
+.btn:focus-visible,input:focus-visible{outline:4px solid var(--sun);outline-offset:3px}
+input{font:inherit;font-weight:800;font-size:1.3em;text-align:center;border:4px solid var(--pri);border-radius:20px;padding:12px;width:min(100%,460px);background:var(--card);color:var(--ink)}
+input.bad{border-color:var(--bad);animation:shake .4s}
+input.ok{border-color:var(--ok)}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.hidden{display:none!important}
+.kb{display:flex;flex-direction:column;align-items:center;gap:6px;margin:14px 0}
+.row{display:flex;gap:6px}
+.key{width:clamp(26px,5.6vw,52px);height:clamp(30px,6vw,56px);border-radius:10px;display:grid;place-items:center;font-weight:800;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.3);text-transform:uppercase;font-size:.8em}
+.key.hit{animation:pop .25s}.key.next{outline:4px solid #fff;box-shadow:0 0 0 8px var(--sun),0 0 24px var(--sun);transform:scale(1.15)}
+@keyframes pop{50%{transform:translateY(5px) scale(.9)}}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;margin-bottom:10px}
+.pill{background:var(--card);padding:6px 16px;border-radius:99px;box-shadow:0 4px 0 rgba(108,61,240,.25)}
+.bar{height:22px;background:rgba(108,61,240,.2);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f43f5e,#ffc21a,#22c55e,#3b82f6,#a855f7);transition:width .5s}
+.target{font-size:clamp(44px,9vw,90px);font-weight:800;color:var(--pri);letter-spacing:.04em;margin:8px 0;user-select:none;word-break:break-word}
+#fb{min-height:2.6em;font-weight:800;font-size:1.15em}
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:18px 0}
+.lv{border:0;border-radius:24px;padding:18px 8px;font:inherit;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.lv b{display:block;font-size:2em}.lv:disabled{background:#94a3b8!important;cursor:not-allowed}
+.stars span{font-size:2em}
+.badge{font-size:110px;animation:spin 1s}
+@keyframes spin{from{transform:rotate(-360deg) scale(0)}}
+.conf{position:fixed;top:-40px;font-size:30px;pointer-events:none;animation:fall 3s linear forwards;z-index:9}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+.dip{border:14px double #d89b00;background:linear-gradient(135deg,#fffbe6,#ffe9a8);color:#3b2a00;border-radius:12px;padding:28px 16px;text-align:center}
+.dip h2{font-size:clamp(34px,7vw,64px);color:#c2410c}.dip .nm{font-size:clamp(34px,7vw,64px);font-weight:800;color:#6c3df0;border-bottom:4px dotted #d89b00;display:inline-block;padding:0 20px;margin:10px 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+@media print{body{background:#fff}.noprint{display:none!important}.card{box-shadow:none;padding:0}.dip{border-color:#d89b00;-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4 landscape;margin:12mm}}
+body{--bg:#6b4423;--card:#c6c6c6;--ink:#1e1e1e;--mut:#444;--pri:#3b8526;--ok:#2f7d1f;--bad:#b3261e;--sun:#fcee4b;font-family:"VT323","Courier New",monospace;font-size:clamp(24px,2.8vw,32px);background-color:#6b4423;background-image:linear-gradient(45deg,rgba(0,0,0,.14) 25%,transparent 25%,transparent 75%,rgba(0,0,0,.14) 75%),linear-gradient(45deg,rgba(0,0,0,.14) 25%,transparent 25%,transparent 75%,rgba(0,0,0,.14) 75%);background-size:40px 40px;background-position:0 0,20px 20px;image-rendering:pixelated}
+body::before{content:"";position:fixed;top:0;left:0;right:0;height:22px;background:repeating-linear-gradient(90deg,#5fa83a 0 20px,#4f9230 20px 40px);border-bottom:8px solid #3d2a14;z-index:5}
+.wrap{padding-top:40px}
+h1,h2{font-weight:400;color:#1f5c14;text-shadow:3px 3px 0 #fff}
+h1{font-size:clamp(42px,7vw,72px)}
+.card{border-radius:0;background:#c6c6c6;border:4px solid #000;box-shadow:inset 4px 4px 0 #fff,inset -4px -4px 0 #6b6b6b,0 8px 0 rgba(0,0,0,.45)}
+.btn{border-radius:0;font-weight:400;font-size:1.15em;background:#7d7d7d;color:#fff;border:4px solid #000;text-shadow:2px 2px 0 #333;box-shadow:inset 3px 3px 0 rgba(255,255,255,.45),inset -3px -3px 0 rgba(0,0,0,.45)}
+.btn:hover{filter:brightness(1.15)}.btn:active{transform:translateY(3px);box-shadow:inset 3px 3px 0 rgba(0,0,0,.45)}
+.btn.g{background:#4f9a2f}.btn.o{background:#c46a1a}.btn.s{background:#6b6b6b}
+input{border-radius:0;font-weight:400;border:4px solid #8b8b8b;outline:4px solid #000;background:#000;color:#fff;caret-color:#fcee4b}
+input.bad{border-color:#ff5555}input.ok{border-color:#55ff55}
+input::placeholder{color:#888}
+.key{border-radius:0;font-weight:400;border:3px solid #000;box-shadow:inset 3px 3px 0 rgba(255,255,255,.4),inset -3px -3px 0 rgba(0,0,0,.4)}
+.key.next{outline:4px solid #fff;box-shadow:0 0 0 8px #fcee4b}
+.pill{border-radius:0;background:#8b8b8b;color:#fff;border:3px solid #000;text-shadow:2px 2px 0 #333;font-weight:400;box-shadow:inset 2px 2px 0 rgba(255,255,255,.4)}
+.bar{border-radius:0;height:28px;background:#1a1a1a;border:4px solid #000}
+.bar i{background:repeating-linear-gradient(90deg,#7cfc00 0 14px,#58c000 14px 28px)}
+.target{color:#fcee4b;background:#000;border:4px solid #555;padding:6px 22px;text-shadow:4px 4px 0 #3f3f3f;font-weight:400;display:inline-block;max-width:100%}
+#fb{font-weight:400;font-size:1.2em}
+.lv{border-radius:0;font-weight:400;border:4px solid #000;text-shadow:2px 2px 0 rgba(0,0,0,.55);box-shadow:inset 4px 4px 0 rgba(255,255,255,.35),inset -4px -4px 0 rgba(0,0,0,.4)}
+.lv:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-3px)}
+.lv:disabled{background:#555!important}
+.dip{border-radius:0;border:14px solid #5b3a1a;outline:4px solid #000;background:#f3e2b3;color:#3a2a0a}
+.dip h2{color:#7a2fc0;text-shadow:3px 3px 0 #fff}
+.dip .nm{color:#1b6b1b;border-bottom:6px solid #5b3a1a;font-weight:400}
+@media print{body{background:#fff!important}body::before{display:none}.wrap{padding-top:0}.card{box-shadow:none;border:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="s-start" class="card">
+ <div style="font-size:64px">⛏️🟩💎</div>
+ <h1>Majster klávesnice</h1>
+ <p>Ahoj! Napíš svoje meno:</p>
+ <div style="color:var(--mut)">Vyťaž všetkých 7 levelov a staň sa majstrom!</div>
+ <input id="name" maxlength="30" autocomplete="off" placeholder="Tvoje meno">
+ <div><button class="btn g" id="go">Začať hru 🚀</button></div>
+ <div class="kb" id="kb0"></div>
+</section>
+
+<section id="s-map" class="card hidden">
+ <h2 id="hello"></h2>
+ <p>Vyber si level. Ďalší sa odomkne, keď dokončíš ten predchádzajúci.</p>
+ <div class="map" id="map"></div>
+ <div class="pill" style="display:inline-block">⭐ Skóre: <span class="sc">0</span> &nbsp; 📈 Postup: <span class="pc">0</span> %</div>
+</section>
+
+<section id="s-game" class="hidden">
+ <div class="top"><span class="pill" id="lvname"></span><span class="pill">⭐ <span class="sc">0</span></span><span class="pill" id="cnt"></span><button class="btn s" id="tomap">🗺️ Mapa</button></div>
+ <div class="bar"><i id="bar"></i></div>
+ <div class="card">
+  <div id="hint" style="color:var(--mut)"></div>
+  <div class="target" id="target"></div>
+  <input id="inp" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Sem píš">
+  <div><button class="btn g" id="chk">Skontrolovať ✔</button></div>
+  <div id="fb" aria-live="polite"></div>
+  <div class="kb" id="kb1"></div>
+ </div>
+</section>
+
+<section id="s-done" class="card hidden">
+ <div class="badge" id="badge"></div>
+ <h2 id="dt"></h2>
+ <p id="dm"></p>
+ <div class="stars" id="stars"></div>
+ <button class="btn g" id="nxt"></button>
+</section>
+
+<section id="s-dip" class="card hidden">
+ <div class="dip">
+  <div style="font-size:60px">🏆</div>
+  <h2>DIPLOM</h2>
+  <p>Týmto sa udeľuje titul</p>
+  <h2>MAJSTER KLÁVESNICE</h2>
+  <p>žiakovi:</p>
+  <div class="nm" id="dname"></div>
+  <p>za úspešné zvládnutie všetkých úrovní písania na klávesnici.</p>
+  <p><b>Dátum: <span id="ddate"></span></b></p>
+  <p style="font-size:1.3em;font-weight:800">⭐ Gratulujeme! ⭐</p>
+ </div>
+ <div class="noprint">
+  <button class="btn o" id="pdf">Stiahnuť diplom PDF 📄</button>
+  <button class="btn" id="again">Zahrať si znova 🔄</button>
+  <p style="font-size:.7em;color:var(--mut)">V okne tlače vyber „Uložiť ako PDF“.</p>
+ </div>
+</section>
+</div>
+
+<script>
+const LV=[
+ {n:'Písmená',i:'🪵',c:'#f43f5e',h:'Prepíš písmeno',t:['a','m','r','s','p','t']},
+ {n:'Slová',i:'⛏️',c:'#f97316',h:'Prepíš slovo',t:['dom','pes','mama','škola','les','strom']},
+ {n:'Dĺžne a mäkčene',i:'🗡️',c:'#eab308',h:'Píš presne s dĺžňami a mäkčeňmi',t:['žirafa','čerešňa','kŕdeľ','včela','slniečko','kľúč']},
+ {n:'Čísla',i:'💎',c:'#22c55e',h:'Prepíš číslo',t:['15','28','34','46','57','89']},
+ {n:'Veľké začiatočné',i:'🏰',c:'#06b6d4',h:'Prepíš presne podľa vzoru',t:['Peter','Nitra','Slovensko','Zuzana','Váh','Drahovce']},
+ {n:'VEĽKÉ PÍSMENÁ',i:'🔥',c:'#3b82f6',h:'Prepíš iba veľkými písmenami',t:['ŠKOLA','KNIHA','POČÍTAČ','SLOVENSKO','KAMARÁT','PRIATEĽ']},
+ {n:'Vety',i:'🐉',c:'#a855f7',h:'Prepíš vetu presne aj s bodkou',t:['Dnes svieti slnko.','Peter ide do školy.','Mám rád matematiku.','Na lúke rastú kvety.','V lese spieva vtáčik.','Čítam zaujímavú knihu.']}
+];
+const PRAISE=['⭐ Výborne!','⛏️ Skvelá práca!','👍 Paráda!','💎 Epické!','🟩 Super, majster!'];
+const COL=['#f43f5e','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#a855f7','#ec4899'];
+const $=id=>document.getElementById(id);
+let S={name:'',unlocked:1,done:[],lv:0,i:0,att:0,score:0,busy:false};
+
+/* zvuky */
+let ac;function tone(seq,type='square'){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();let t=ac.currentTime;seq.forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.2,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d);t+=d*.8})}catch(e){}}
+const sOk=()=>tone([[523,.12],[659,.12],[784,.2]]),sBad=()=>tone([[220,.2],[180,.25]],'sawtooth'),sWin=()=>tone([[523,.15],[659,.15],[784,.15],[1046,.4]]);
+
+/* klávesnica */
+const ROWS=['qwertyuiop','asdfghjkl','zxcvbnm'];
+function mkKb(el){el.innerHTML='';let k=0;ROWS.forEach(r=>{const d=document.createElement('div');d.className='row';[...r].forEach(ch=>{const s=document.createElement('div');s.className='key';s.textContent=ch;s.dataset.k=ch;s.style.background=COL[k++%COL.length];d.appendChild(s)});el.appendChild(d)})}
+function hit(ch){const b=ch.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();document.querySelectorAll('.key').forEach(k=>{if(k.dataset.k===b){k.classList.remove('hit');void k.offsetWidth;k.classList.add('hit')}})}
+function nextKey(){document.querySelectorAll('.key.next').forEach(k=>k.classList.remove('next'));const t=LV[S.lv].t[S.i],v=$('inp').value;let n=t[v.length];if(v!==t.slice(0,v.length)||!n)return;n=n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();document.querySelectorAll('#kb1 .key').forEach(k=>{if(k.dataset.k===n)k.classList.add('next')})}
+document.addEventListener('keydown',e=>{if(e.key.length===1)hit(e.key)});
+
+/* obrazovky */
+function show(id){['s-start','s-map','s-game','s-done','s-dip'].forEach(x=>$(x).classList.toggle('hidden',x!==id));window.scrollTo(0,0)}
+function pct(){let n=0;LV.forEach((l,k)=>{n+=S.done[k]?6:(k===S.lv&&!$('s-map').offsetParent?S.i:0)});return Math.round(n/42*100)}
+function upd(){document.querySelectorAll('.sc').forEach(e=>e.textContent=S.score);document.querySelectorAll('.pc').forEach(e=>e.textContent=pct());$('bar').style.width=pct()+'%'}
+function drawMap(){$('hello').textContent='Ahoj, '+S.name+'! 👋';const m=$('map');m.innerHTML='';LV.forEach((l,k)=>{const b=document.createElement('button');b.className='lv';b.style.background=l.c;b.disabled=k+1>S.unlocked;b.innerHTML='<b>'+(b.disabled?'🔒':S.done[k]?'🏅':l.i)+'</b>Level '+(k+1)+'<br>'+l.n;b.onclick=()=>start(k);m.appendChild(b)});upd()}
+function start(k){S.lv=k;S.i=0;S.att=0;show('s-game');mkKb($('kb1'));$('lvname').textContent=LV[k].i+' Level '+(k+1)+': '+LV[k].n;task()}
+function task(){const l=LV[S.lv];S.att=0;S.busy=false;$('hint').textContent=l.h;$('target').textContent=l.t[S.i];$('cnt').textContent='Úloha '+(S.i+1)+' z 6';$('fb').textContent='';$('fb').style.color='';const i=$('inp');i.value='';i.className='';i.focus();upd();nextKey()}
+function confetti(){for(let n=0;n<40;n++){const c=document.createElement('div');c.className='conf';c.textContent=['💎','🟩','⭐','✨','🧱'][n%5];c.style.left=Math.random()*100+'vw';c.style.animationDelay=Math.random()*.8+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),4200)}}
+
+function check(){
+ if(S.busy)return;
+ const t=LV[S.lv].t[S.i],v=$('inp').value.trim().normalize('NFC'),i=$('inp'),fb=$('fb');
+ if(!v){fb.textContent='✏️ Najprv niečo napíš.';return}
+ if(v===t){
+  S.busy=true;S.score+=S.att?5:10;i.className='ok';fb.style.color='var(--ok)';fb.textContent=PRAISE[Math.floor(Math.random()*PRAISE.length)];sOk();S.i++;upd();
+  setTimeout(()=>{S.i>=6?finish():task()},900);
+ }else{
+  S.att++;sBad();i.className='bad';fb.style.color='var(--bad)';
+  let d='';for(let k=0;k<Math.max(v.length,t.length);k++){if(v[k]!==t[k]){d=' Pozri sa na '+(k+1)+'. znak: má byť „'+(t[k]||'(nič)')+'“.';break}}
+  fb.textContent='🤔 Skoro! Oprav to a skús znova.'+(S.att>1?d:'');i.focus();i.select();
+ }
+}
+function finish(){
+ const k=S.lv;S.done[k]=true;S.unlocked=Math.max(S.unlocked,k+2);upd();sWin();confetti();
+ $('badge').textContent=LV[k].i+'🏅';$('stars').innerHTML='<span>⭐⭐⭐</span>';
+ const last=k===LV.length-1;
+ $('dt').textContent=last?'Hurá! Zvládol si všetky levely!':'Výborne! Odomkol si ďalší level.';
+ $('dm').textContent='Odznak za level '+(k+1)+': '+LV[k].n;
+ $('nxt').textContent=last?'Zobraziť diplom 🏆':'Ďalší level ▶';
+ $('nxt').onclick=()=>last?diploma():start(k+1);
+ show('s-done');
+}
+function diploma(){$('dname').textContent=S.name;$('ddate').textContent=new Date().toLocaleDateString('sk-SK');show('s-dip');confetti();sWin()}
+
+$('go').onclick=()=>{const n=$('name').value.trim();if(!n){$('name').classList.add('bad');$('name').focus();return}S.name=n;drawMap();show('s-map');sOk()};
+$('name').addEventListener('keydown',e=>{if(e.key==='Enter')$('go').click()});
+$('inp').addEventListener('keydown',e=>{if(e.key==='Enter')check()});
+$('inp').addEventListener('input',()=>{$('inp').className='';nextKey()});
+$('chk').onclick=check;
+$('tomap').onclick=()=>{drawMap();show('s-map')};
+$('pdf').onclick=()=>window.print();
+$('again').onclick=()=>{S={name:'',unlocked:1,done:[],lv:0,i:0,att:0,score:0,busy:false};$('name').value='';show('s-start')};
+mkKb($('kb0'));
+</script>
+</body>
+</html>
